@@ -22,33 +22,46 @@ public class SplitAnimation {
     private Context mContext;
     private long mDuration ;
     private  Interpolator mInterpolator ;
+    private View mCopy;
 
     public SplitAnimation(View view) {
 
         mTarget = view;
+        if (mTarget instanceof CircleImageView) {
+
+            mCopy = new CircleImageView((ImageView)mTarget);
+            ViewGroup parent = (ViewGroup) mTarget.getParent();
+            parent.addView(mCopy);
+
+        }else if (mTarget instanceof ImageView) {
+
+            mCopy = new ImageView(mContext);
+            Drawable src = ((ImageView) mTarget).getDrawable();
+            mCopy.setBackground(src);
+            ViewGroup.LayoutParams lp = mTarget.getLayoutParams();
+            mCopy.setLayoutParams(lp);
+            ViewGroup parent = (ViewGroup) mTarget.getParent();
+            parent.addView(mCopy);
+        }
+
+
+
         mContext = view.getContext();
         mDuration =1500;
         mInterpolator = new LinearInterpolator();
+
     }
 
+
+    public View getSplitedView(){
+        return mCopy;
+    }
     public void start() {
 
-        View copy = null;
-        if (mTarget instanceof ImageView) {
-            copy = new ImageView(mContext);
-            Drawable src = ((ImageView) mTarget).getDrawable();
-            copy.setBackground(src);
-        }
-        if (copy != null) {
-            ViewGroup.LayoutParams lp = mTarget.getLayoutParams();
-            copy.setLayoutParams(lp);
-            ViewGroup parent = (ViewGroup) mTarget.getParent();
-            parent.addView(copy);
-
-
+        if (mCopy != null) {
             TranslateAnimation copyTrani = new TranslateAnimation(
                     Animation.RELATIVE_TO_SELF,0.f,
-                    Animation.ABSOLUTE,400f,
+                    Animation.RELATIVE_TO_SELF,1f,
                     Animation.RELATIVE_TO_SELF,0.f,
                     Animation.RELATIVE_TO_SELF,0.f
             );
@@ -68,7 +81,7 @@ public class SplitAnimation {
 
             TranslateAnimation targetTrani = new TranslateAnimation(
                     Animation.RELATIVE_TO_SELF,0.f,
-                    Animation.ABSOLUTE,-400.f,
+                    Animation.RELATIVE_TO_SELF,-1f,
                     Animation.RELATIVE_TO_SELF,0.f,
                     Animation.RELATIVE_TO_SELF,0.f
             );
@@ -96,7 +109,7 @@ public class SplitAnimation {
             targetSet.addAnimation(targetScale);
 
 
-            copy.startAnimation(copySet);
+            mCopy.startAnimation(copySet);
             mTarget.startAnimation(targetSet);
 
         }

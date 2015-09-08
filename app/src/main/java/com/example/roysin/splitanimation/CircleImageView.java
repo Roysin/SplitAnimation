@@ -10,6 +10,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -19,7 +20,7 @@ import android.widget.ImageView;
 public class CircleImageView extends ImageView{
 
 
-    private Paint mPaint;
+//    private Paint mPaint;
     private Path mPath;
     private ImageView mOriginal;
 
@@ -37,44 +38,29 @@ public class CircleImageView extends ImageView{
     }
 
     private void init(){
-        if(mPath==null|| mPaint == null){
+        if(mPath==null){//|| mPaint == null){
             mPath = new Path();
-            mPaint = new Paint();
+//            mPaint = new Paint();
         }else {
             mPath.reset();
-            mPaint.reset();
+//            mPaint.reset();
         }
 
-        Xfermode xfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
-        mPaint.setXfermode(xfermode);
-        mPaint.setFilterBitmap(false);
-
+//        mPaint.setAntiAlias(true);
+//        mPaint.setColor(Color.BLACK);
+//        mPaint.setStyle(Paint.Style.FILL);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+
+        long height = mOriginal.getHeight();
+        long width = mOriginal.getWidth();
+        float radius = height > width? width/2.0f:height/2.0f;
+        mPath.addCircle(radius, radius, radius, Path.Direction.CW);
+
+        canvas.clipPath(mPath);
         super.onDraw(canvas);
-        Canvas xfcanvas= new Canvas();
-        long height = mOriginal.getHeight();
-        long width = mOriginal.getWidth();
-        float radius = height > width? width/2.0f:height/2.0f;
-        xfcanvas.drawCircle(radius,radius,radius,mPaint);
-//        xfcanvas.drawBitmap(getBitmap(),0,0,mPaint);
-
-
-
     }
 
-    public Bitmap getBitmap() {
-        Bitmap b= Bitmap.createBitmap(getWidth(),getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas =new Canvas(b);
-        long height = mOriginal.getHeight();
-        long width = mOriginal.getWidth();
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.BLACK);
-        float radius = height > width? width/2.0f:height/2.0f;
-        canvas.drawCircle(radius,radius,radius,paint);
-        return  b;
-
-    }
 }

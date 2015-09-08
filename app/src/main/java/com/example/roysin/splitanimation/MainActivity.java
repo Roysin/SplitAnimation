@@ -23,14 +23,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-//        SplitAnimation splitAnimation = new SplitAnimation(target);
-//        splitAnimation.setDuration(300);
-//        splitAnimation.start();
 
         CircleImageView circle = new CircleImageView(target);
         ViewGroup vgroup = (ViewGroup) target.getParent();
         target.setVisibility(View.INVISIBLE);
         vgroup.addView(circle);
+        SplitAnimation splitAnimation = new SplitAnimation(circle);
+        splitAnimation.setDuration(300);
+        splitAnimation.start();
 
     }
 }
