@@ -152,6 +152,9 @@ public class SplitAnimation {
     public long getTotalDuration(){
         return mTotalDuration;
     }
+    public void setZoonInDurationRatio(float ratio){
+        zoomInDurationRatio=ratio;
+    }
     public long getZoomInDuration() {
          return (long) (mTotalDuration * zoomInDurationRatio);
     }
