@@ -2,15 +2,10 @@ package com.example.roysin.splitanimation;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Xfermode;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.RectF;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -20,9 +15,10 @@ import android.widget.ImageView;
 public class CircleImageView extends ImageView{
 
 
-//    private Paint mPaint;
+    private static final String TAG = "CircleImageView";
     private Path mPath;
     private ImageView mOriginal;
+    private long mProgress;
 
     private CircleImageView(Context context) {
         super(context);
@@ -38,28 +34,48 @@ public class CircleImageView extends ImageView{
     }
 
     private void init(){
-        if(mPath==null){//|| mPaint == null){
+        if(mPath==null){
             mPath = new Path();
-//            mPaint = new Paint();
         }else {
             mPath.reset();
-//            mPaint.reset();
         }
-
-//        mPaint.setAntiAlias(true);
-//        mPaint.setColor(Color.BLACK);
-//        mPaint.setStyle(Paint.Style.FILL);
+        mProgress=100;
     }
 
+    /**
+     * 开始从矩形变为圆角矩形再到圆形
+     * @param prog 最大值为100，表示完成圆形形变
+     */
+    public void transformTo(long prog){
+        mProgress = prog;
+        mProgress=mProgress>100?100:mProgress;
+        mProgress=mProgress<0?0:mProgress;
+        Log.d(TAG, "transformTo " + mProgress);
+        postInvalidate();
+    }
+
+    private Path getRoundRectPath(){
+        synchronized (mPath){
+
+            long height = mOriginal.getHeight();
+            long width = mOriginal.getWidth();
+            float radius = height > width? width/2.0f:height/2.0f;
+
+            mPath.reset();
+            mPath.addRoundRect(new RectF(0,0,height,width),
+                    radius*mProgress/100.f,
+                    radius*mProgress/100.f,
+                    Path.Direction.CW);
+            Log.d(TAG, "getRoundRectPath " + radius*mProgress/100.f);
+            return mPath;
+        }
+
+
+    }
     @Override
     protected void onDraw(Canvas canvas) {
-
-        long height = mOriginal.getHeight();
-        long width = mOriginal.getWidth();
-        float radius = height > width? width/2.0f:height/2.0f;
-        mPath.addCircle(radius, radius, radius, Path.Direction.CW);
-
-        canvas.clipPath(mPath);
+        Log.d(TAG, "onDraw called ");
+        canvas.clipPath(getRoundRectPath());
         super.onDraw(canvas);
     }
 

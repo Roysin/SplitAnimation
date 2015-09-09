@@ -3,14 +3,15 @@ package com.example.roysin.splitanimation;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
 /**
@@ -18,11 +19,16 @@ import android.widget.ImageView;
  */
 public class SplitAnimation {
 
+    private static final String TAG = "SplitAnimation";
     private View mTarget;
     private Context mContext;
-    private long mDuration ;
-    private  Interpolator mInterpolator ;
+    private long mTotalDuration;
+    private  Interpolator mZoomInInterpolator;
     private View mCopy;
+    private float zoomInDurationRatio;
+    private Interpolator mZoomOutInterpolator;
+    private float zoomInScaleRatio;
+    private float zoomOutScaleRatio;
 
     public SplitAnimation(View view) {
 
@@ -47,9 +53,12 @@ public class SplitAnimation {
 
 
         mContext = view.getContext();
-        mDuration =1500;
-        mInterpolator = new LinearInterpolator();
-
+        mTotalDuration =1500;
+        zoomInDurationRatio = 0.80f;
+        zoomInScaleRatio = 0.25f;
+        zoomOutScaleRatio = 0.40f;
+        mZoomInInterpolator = new DecelerateInterpolator();
+        mZoomOutInterpolator = new AccelerateInterpolator();
     }
 
 
@@ -59,75 +68,124 @@ public class SplitAnimation {
     public void start() {
 
         if (mCopy != null) {
-            TranslateAnimation copyTrani = new TranslateAnimation(
-                    Animation.RELATIVE_TO_SELF,0.f,
-                    Animation.RELATIVE_TO_SELF,1f,
-                    Animation.RELATIVE_TO_SELF,0.f,
-                    Animation.RELATIVE_TO_SELF,0.f
-            );
 
-            copyTrani.setFillAfter(true);
-            copyTrani.setDuration(getDuration());
-
-            ScaleAnimation copyScale = new ScaleAnimation(1.0f, 0.4f, 1.0f, 0.4f,
-                    Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+            ScaleAnimation copyScale = new ScaleAnimation(
+                    1.0f,
+                    getZoomInScaleRatio(),
+                    1.0f,
+                    getZoomInScaleRatio(),
+                    Animation.RELATIVE_TO_SELF,1f,Animation.RELATIVE_TO_SELF,0.5f);
 
             copyScale.setFillAfter(true);
-            copyScale.setDuration(getDuration());
+            copyScale.setDuration(getZoomInDuration());
+            copyScale.setInterpolator(getZoomInInterpolator());
+            ScaleAnimation copyBounce = new ScaleAnimation(
+                    1.0f,
+                    getZoomOutScaleRatio(),
+                    1.0f,
+                    getZoomOutScaleRatio(),
+                    Animation.RELATIVE_TO_SELF,1f,Animation.RELATIVE_TO_SELF,0.5f);
 
+            copyBounce.setFillAfter(true);
+            copyBounce.setDuration(getZoomOutDuration());
+            copyBounce.setStartOffset(getZoomInDuration()+100);
+            copyBounce.setInterpolator(getZoomOutInterpolator());
 
-
-
-
-            TranslateAnimation targetTrani = new TranslateAnimation(
-                    Animation.RELATIVE_TO_SELF,0.f,
-                    Animation.RELATIVE_TO_SELF,-1f,
-                    Animation.RELATIVE_TO_SELF,0.f,
-                    Animation.RELATIVE_TO_SELF,0.f
-            );
-
-            targetTrani.setFillAfter(true);
-            targetTrani.setDuration(getDuration());
-
-            ScaleAnimation targetScale = new ScaleAnimation(1.0f, 0.4f, 1.0f, 0.4f,
-                    Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
-
+            ScaleAnimation targetScale = new ScaleAnimation(
+                    1.0f,
+                    getZoomInScaleRatio(),
+                    1.0f,
+                    getZoomInScaleRatio(),
+                    Animation.RELATIVE_TO_SELF,0f,Animation.RELATIVE_TO_SELF,0.5f);
             targetScale.setFillAfter(true);
-            targetScale.setDuration(getDuration());
+            targetScale.setDuration(getZoomInDuration());
+            targetScale.setInterpolator(getZoomInInterpolator());
 
-
-
+            ScaleAnimation targetBounce = new ScaleAnimation(
+                    1.0f,
+                    getZoomOutScaleRatio(),
+                    1.0f,
+                    getZoomOutScaleRatio(),
+                    Animation.RELATIVE_TO_SELF,0f,Animation.RELATIVE_TO_SELF,0.5f);
+            targetBounce.setFillAfter(true);
+            targetBounce.setDuration(getZoomOutDuration());
+            targetBounce.setStartOffset(getZoomInDuration()+100);
+            targetBounce.setInterpolator(getZoomOutInterpolator());
 
             AnimationSet copySet = new AnimationSet(true);
             copySet.setFillAfter(true);
-            copySet.addAnimation(copyTrani);
             copySet.addAnimation(copyScale);
+            copySet.addAnimation(copyBounce);
 
             AnimationSet targetSet = new AnimationSet(true);
             targetSet.setFillAfter(true);
-            targetSet.addAnimation(targetTrani);
             targetSet.addAnimation(targetScale);
+            targetSet.addAnimation(targetBounce);
 
+            if((mCopy instanceof CircleImageView )&&(mTarget instanceof CircleImageView ))
+            {
+                Log.d(TAG, "transform now ");
+                TransformAnimator copyTransform = new TransformAnimator((CircleImageView)mCopy);
+                copyTransform.setDuration(getZoomInDuration());
+                copyTransform.setInterpolator(getZoomInInterpolator());
+
+                TransformAnimator targetTransform = new TransformAnimator((CircleImageView)mTarget);
+                targetTransform.setDuration(getZoomInDuration());
+                targetTransform.setInterpolator(getZoomInInterpolator());
+
+                copyTransform.startAnimation();
+                targetTransform.startAnimation();
+            }
 
             mCopy.startAnimation(copySet);
             mTarget.startAnimation(targetSet);
 
+
         }
     }
 
-    public void setDuration(long time) {
-        mDuration = time;
+    public void setTotalDuration(long time) {
+        mTotalDuration = time;
 
     }
 
-    public long getDuration() {
-        return mDuration;
+    public long getTotalDuration(){
+        return mTotalDuration;
+    }
+    public long getZoomInDuration() {
+         return (long) (mTotalDuration * zoomInDurationRatio);
     }
 
-    public void setInterpolator( Interpolator i){
-        mInterpolator = i;
+    public void setZoomInInterpolator(Interpolator i){
+        mZoomInInterpolator = i;
     }
-    public Interpolator getInterpolator() {
-        return mInterpolator;
+    public Interpolator getZoomInInterpolator() {
+        return mZoomInInterpolator;
+    }
+
+    public void setZoomOutInterpolator(Interpolator i){
+        mZoomOutInterpolator = i ;
+    }
+    public Interpolator getZoomOutInterpolator(){
+        return mZoomOutInterpolator;
+    }
+
+    public long getZoomOutDuration() {
+        return (long) (mTotalDuration *(1- zoomInDurationRatio));
+    }
+
+    public float getZoomInScaleRatio() {
+        return zoomInScaleRatio;
+    }
+
+    public void setZoomInScaleRatio( float ratio) {
+         zoomInScaleRatio=ratio;
+    }
+
+    public void setZoomOutScaleRatio( float ratio ) {
+        zoomOutScaleRatio=ratio;
+    }
+    public float getZoomOutScaleRatio() {
+        return  zoomOutScaleRatio*1.0f/zoomInScaleRatio;
     }
 }

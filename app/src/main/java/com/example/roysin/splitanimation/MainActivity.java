@@ -11,6 +11,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private ImageView target;
     private Button btnPlay;
+    private ImageView splitView;
+    private CircleImageView circle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,12 +27,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
 
-        CircleImageView circle = new CircleImageView(target);
         ViewGroup vgroup = (ViewGroup) target.getParent();
+        if(splitView != null) {
+            vgroup.removeView(splitView);
+            vgroup.removeView(circle);
+        }
+
+        circle = new CircleImageView(target);
         target.setVisibility(View.INVISIBLE);
         vgroup.addView(circle);
         SplitAnimation splitAnimation = new SplitAnimation(circle);
-        splitAnimation.setDuration(300);
+        splitView = (ImageView) splitAnimation.getSplitedView();
+        splitAnimation.setTotalDuration(400);
         splitAnimation.start();
 
     }
