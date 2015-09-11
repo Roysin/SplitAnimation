@@ -158,6 +158,9 @@ public class SplitAnimation {
     public long getZoomInDuration() {
          return (long) (mTotalDuration * zoomInDurationRatio);
     }
+    public float getZoomInDurationRatio() {
+        return  zoomInDurationRatio;
+    }
 
     public void setZoomInInterpolator(Interpolator i){
         mZoomInInterpolator = i;
@@ -176,7 +179,6 @@ public class SplitAnimation {
     public long getZoomOutDuration() {
         return (long) (mTotalDuration *(1- zoomInDurationRatio));
     }
-
     public float getZoomInScaleRatio() {
         return zoomInScaleRatio;
     }
@@ -185,10 +187,13 @@ public class SplitAnimation {
          zoomInScaleRatio=ratio;
     }
 
-    public void setZoomOutScaleRatio( float ratio ) {
+    public void setZoomOutToScaleRatio(float ratio) {
         zoomOutScaleRatio=ratio;
     }
     public float getZoomOutScaleRatio() {
         return  zoomOutScaleRatio*1.0f/zoomInScaleRatio;
+    }
+    public  float getZoomOutToScaleRatio(){
+        return zoomOutScaleRatio;
     }
 }

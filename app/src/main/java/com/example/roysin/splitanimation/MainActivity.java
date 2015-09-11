@@ -20,20 +20,21 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
     private TextView tvZoomInDratio;
     private TextView tvZoomOutSRatio;
     private TextView tvZoomInSratio;
+    private SeekBar sbZoominD,sbZoominS,sbTotalD,sbZoomOutS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        target = (ImageView) findViewById(R.id.target);
 
+        target = (ImageView) findViewById(R.id.target);
         btnPlay = (Button) findViewById(R.id.btn_play);
         btnPlay.setOnClickListener(this);
 
-        SeekBar sbZoominD = (SeekBar) findViewById(R.id.sb_zoomin_duration_ratio);
-        SeekBar sbZoominS = (SeekBar) findViewById(R.id.sb_zoomin_scale_ratio);
-        SeekBar sbTotalD = (SeekBar) findViewById(R.id.sb_total_duration);
-        SeekBar sbZoomOutS = (SeekBar) findViewById(R.id.sb_zoomout_scale_ratio);
+        sbZoominD = (SeekBar) findViewById(R.id.sb_zoomin_duration_ratio);
+        sbZoominS = (SeekBar) findViewById(R.id.sb_zoomin_scale_ratio);
+        sbTotalD = (SeekBar) findViewById(R.id.sb_total_duration);
+        sbZoomOutS = (SeekBar) findViewById(R.id.sb_zoomout_scale_ratio);
         sbZoomOutS.setOnSeekBarChangeListener(this);
         sbTotalD.setOnSeekBarChangeListener(this);
         sbZoominD.setOnSeekBarChangeListener(this);
@@ -44,14 +45,13 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
         tvZoomOutSRatio= (TextView) findViewById(R.id.tv_zoomout_scale_ratio);
         tvZoomInSratio= (TextView) findViewById(R.id.tv_zoomin_s_ratio);
 
-
     }
 
     @Override
     public void onClick(View v) {
 
-        ViewGroup vgroup = (ViewGroup) target.getParent();
         if(mSplitAnimation == null) {
+            ViewGroup vgroup = (ViewGroup) target.getParent();
             circle = new CircleImageView(target);
             target.setVisibility(View.INVISIBLE);
             vgroup.addView(circle);
@@ -59,11 +59,31 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
             splitView = (ImageView) mSplitAnimation.getSplitedView();
             mSplitAnimation.setTotalDuration(400);
 
+            setSeekBarAndValue();
+
+
+
         }
-        mSplitAnimation.start();
+
+            mSplitAnimation.start();
+//        ViewGroup vgroup = (ViewGroup) target.getParent();
 //        vgroup.removeView(splitView);
 //        vgroup.removeView(circle);
 
+    }
+
+    public void setSeekBarAndValue(){
+        if(mSplitAnimation == null ){
+            return;
+        }
+        sbTotalD.setProgress((int) (mSplitAnimation.getTotalDuration()/30.f));
+        sbZoominD.setProgress((int) (mSplitAnimation.getZoomInDurationRatio()*100.f));
+        sbZoominS.setProgress((int) (mSplitAnimation.getZoomInScaleRatio()*100.f));
+        sbZoomOutS.setProgress((int) (mSplitAnimation.getZoomOutToScaleRatio()*100.f));
+        tvTotalDuration.setText(String.valueOf(mSplitAnimation.getTotalDuration()));
+        tvZoomInDratio.setText(String.valueOf(mSplitAnimation.getZoomInDurationRatio()));
+        tvZoomOutSRatio.setText(String.valueOf(mSplitAnimation.getZoomOutToScaleRatio()));
+        tvZoomInSratio.setText(String.valueOf(mSplitAnimation.getZoomInScaleRatio()));
     }
 
     @Override
@@ -85,7 +105,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
                 tvZoomInSratio.setText(String.valueOf(progress/100.f));
                 break;
             case R.id.sb_zoomout_scale_ratio:
-                mSplitAnimation.setZoomOutScaleRatio(progress/100.f);
+                mSplitAnimation.setZoomOutToScaleRatio(progress / 100.f);
                 tvZoomOutSRatio.setText(String.valueOf(progress/100.f));
                 break;
             default:break;

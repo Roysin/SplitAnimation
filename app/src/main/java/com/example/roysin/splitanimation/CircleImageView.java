@@ -79,4 +79,12 @@ public class CircleImageView extends ImageView{
         super.onDraw(canvas);
     }
 
+    public void setCircleRate(long rate){
+       transformTo(rate);
+    }
+
+    public long getCircleRate(){
+        return mProgress;
+    }
+
 }
