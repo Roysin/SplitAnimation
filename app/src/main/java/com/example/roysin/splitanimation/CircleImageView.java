@@ -18,7 +18,8 @@ public class CircleImageView extends ImageView{
     private static final String TAG = "CircleImageView";
     private Path mPath;
     private ImageView mOriginal;
-    private long mProgress;
+    private int mCircleRate;
+    private int mBlurRate;
 
     private CircleImageView(Context context) {
         super(context);
@@ -39,18 +40,19 @@ public class CircleImageView extends ImageView{
         }else {
             mPath.reset();
         }
-        mProgress=100;
+        mCircleRate =100;
+        mBlurRate=0;
     }
 
     /**
      * 开始从矩形变为圆角矩形再到圆形
      * @param prog 最大值为100，表示完成圆形形变
      */
-    public void transformTo(long prog){
-        mProgress = prog;
-        mProgress=mProgress>100?100:mProgress;
-        mProgress=mProgress<0?0:mProgress;
-        Log.d(TAG, "transformTo " + mProgress);
+    public void transformTo(int prog){
+        mCircleRate = prog;
+        mCircleRate = mCircleRate >100?100: mCircleRate;
+        mCircleRate = mCircleRate <0?0: mCircleRate;
+        Log.d(TAG, "transformTo " + mCircleRate);
         postInvalidate();
     }
 
@@ -63,10 +65,10 @@ public class CircleImageView extends ImageView{
 
             mPath.reset();
             mPath.addRoundRect(new RectF(0,0,height,width),
-                    radius*mProgress/100.f,
-                    radius*mProgress/100.f,
+                    radius* mCircleRate /100.f,
+                    radius* mCircleRate /100.f,
                     Path.Direction.CW);
-            Log.d(TAG, "getRoundRectPath " + radius*mProgress/100.f);
+            Log.d(TAG, "getRoundRectPath " + radius* mCircleRate /100.f);
             return mPath;
         }
 
@@ -79,12 +81,16 @@ public class CircleImageView extends ImageView{
         super.onDraw(canvas);
     }
 
-    public void setCircleRate(long rate){
+    public void setBlur(int blur){
+        mBlurRate = blur;
+    }
+
+    public void setCircleRate(int rate){
        transformTo(rate);
     }
 
-    public long getCircleRate(){
-        return mProgress;
+    public int getCircleRate(){
+        return mCircleRate;
     }
 
 }

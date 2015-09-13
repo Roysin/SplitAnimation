@@ -61,7 +61,7 @@ public class TransformAnimator {
         }
     }
 
-    private void transformImageView(long prog) {
+    private void transformImageView(int prog) {
         if(mTarget instanceof CircleImageView){
             ((CircleImageView) mTarget).transformTo(prog);
         }

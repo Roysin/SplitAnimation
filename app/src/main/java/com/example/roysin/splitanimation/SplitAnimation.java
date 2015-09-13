@@ -1,6 +1,8 @@
 package com.example.roysin.splitanimation;
 
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -88,7 +90,7 @@ public class SplitAnimation {
 
             copyBounce.setFillAfter(true);
             copyBounce.setDuration(getZoomOutDuration());
-            copyBounce.setStartOffset(getZoomInDuration()+100);
+            copyBounce.setStartOffset(getZoomInDuration() + 100);
             copyBounce.setInterpolator(getZoomOutInterpolator());
 
             ScaleAnimation targetScale = new ScaleAnimation(
@@ -109,7 +111,7 @@ public class SplitAnimation {
                     Animation.RELATIVE_TO_SELF,0f,Animation.RELATIVE_TO_SELF,0.5f);
             targetBounce.setFillAfter(true);
             targetBounce.setDuration(getZoomOutDuration());
-            targetBounce.setStartOffset(getZoomInDuration()+100);
+            targetBounce.setStartOffset(getZoomInDuration() + 100);
             targetBounce.setInterpolator(getZoomOutInterpolator());
 
             AnimationSet copySet = new AnimationSet(true);
@@ -124,17 +126,28 @@ public class SplitAnimation {
 
             if((mCopy instanceof CircleImageView )&&(mTarget instanceof CircleImageView ))
             {
-                Log.d(TAG, "transform now ");
-                TransformAnimator copyTransform = new TransformAnimator((CircleImageView)mCopy);
-                copyTransform.setDuration(getZoomInDuration());
-                copyTransform.setInterpolator(getZoomInInterpolator());
+//                Log.d(TAG, "transform now ");
+//                TransformAnimator copyTransform = new TransformAnimator((CircleImageView)mCopy);
+//                copyTransform.setDuration(getZoomInDuration());
+//                copyTransform.setInterpolator(getZoomInInterpolator());
+//
+//                TransformAnimator targetTransform = new TransformAnimator((CircleImageView)mTarget);
+//                targetTransform.setDuration(getZoomInDuration());
+//                targetTransform.setInterpolator(getZoomInInterpolator());
+//
+//                copyTransform.startAnimation();
+//                targetTransform.startAnimation();
+                ObjectAnimator copyRoundAni = ObjectAnimator.ofInt(mCopy, "CircleRate", 0, 100);
+                copyRoundAni.setDuration(getZoomInDuration());
+                copyRoundAni.setInterpolator(getZoomInInterpolator());
 
-                TransformAnimator targetTransform = new TransformAnimator((CircleImageView)mTarget);
-                targetTransform.setDuration(getZoomInDuration());
-                targetTransform.setInterpolator(getZoomInInterpolator());
+                ObjectAnimator targetRoundAni = ObjectAnimator.ofInt(mTarget,"CircleRate",0,100);
+                targetRoundAni.setDuration(getZoomInDuration());
+                copyRoundAni.setInterpolator(getZoomInInterpolator());
 
-                copyTransform.startAnimation();
-                targetTransform.startAnimation();
+                AnimatorSet atorSet = new AnimatorSet();
+                atorSet.play(copyRoundAni).with(targetRoundAni);
+                atorSet.start();
             }
 
             mCopy.startAnimation(copySet);
